@@ -1,4 +1,4 @@
-module github.com/kmou424/errhandlergo
+module github.com/ohanakogo/errhandlergo
 
 go 1.20
 
