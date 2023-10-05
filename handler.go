@@ -1,31 +1,21 @@
 package errhandlergo
 
-import (
-	"github.com/gookit/slog"
-	"runtime"
-)
-
-func HandleRecover(do func(err any)) {
-	if r := recover(); r != nil {
-		do(r)
-	}
+type ErrorHandler struct {
+	handler func(error)
 }
 
-func HandleErrorIsNil(err error, postprocess func()) {
-	if err == nil {
-		if postprocess != nil {
-			postprocess()
-		}
+func NewDefaultErrorHandler() *ErrorHandler {
+	return &ErrorHandler{
+		handler: func(err error) {},
 	}
 }
+func (e *ErrorHandler) SetHandler(handler func(error)) {
+	e.handler = handler
+}
 
-func HandleError(err error, postprocess func()) {
-	_, file, line, _ := runtime.Caller(1)
-	if err != nil {
-		slog.Errorf("error encountered[%s:%d]", file, line)
-		slog.Errorf("errors: %s", err.Error())
-		if postprocess != nil {
-			postprocess()
-		}
+func (e *ErrorHandler) H(err error, handlerPlugins ...HandlerPlugin) {
+	for _, plugin := range handlerPlugins {
+		plugins[plugin](err)
 	}
+	e.handler(err)
 }
